@@ -1,0 +1,101 @@
+version: "3.9"
+
+services:
+  # kong:
+  #   image: kong/kong-gateway:3.2.2.1
+  #   user: kong
+  #   container_name: kong-gateway
+  #   environment:
+  #     KONG_DATABASE: "off"
+  #     KONG_ADMIN_GUI_PATH:  /manager
+  #     KONG_ADMIN_GUI_URL: http://localhost:8002/manager
+  #     KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+  #     KONG_ADMIN_LISTEN: 0.0.0.0:8001
+  #     KONG_ADMIN_ACCESS_LOG: /dev/stdout
+  #     KONG_ADMIN_ERROR_LOG: /dev/stderr
+  #   volumes:
+  #     - ./declarative:/kong/declarative/
+  #   ports:
+  #     - 8000:8000
+  #     - 8001:8001
+  #     - 8002:8002
+  #   networks:
+  #     kong-net:
+  #       ipv4_address: 160.160.160.10
+
+
+  kong:
+    image: kong/kong-gateway:3.2.2.1
+    container_name: kong-gateway
+    profiles: ["kong"]
+    environment:
+      KONG_LICENSE_DATA: ''
+      KONG_DATABASE: "postgres"
+      KONG_PG_HOST: 190.190.10.11
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kongpass
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+    volumes:
+      - ./config/kong.conf:/etc/kong/kong.conf
+    ports:
+      - 8000:8000 # proxy http
+      - 8444:8444 # admin https/ssl
+    networks:
+      kong-net:
+        ipv4_address: 190.190.10.10
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13
+    container_name: postgres-13
+    profiles: ['db']
+    environment:
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: kongpass
+      POSTGRES_DB: kong
+    ports: 
+      - 5432:5432
+    networks:
+      kong-net:
+        ipv4_address: 190.190.10.11
+    volumes:
+      - kong-data:/var/lib/postgresql/data
+
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: kong-prometheus
+    profiles: ["prm"]
+    ports: 
+        - 9090:9090
+    volumes:
+        - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+        kong-net:
+          ipv4_address: 190.190.10.190
+
+networks:
+  kong-net:
+    name: kong-net
+    ipam:
+      driver: default
+      config:
+        - subnet: 190.190.10.0/24
+volumes:
+  kong-data: {}
+
+
+#########
+## Shell command to migrate kong configuration into PostGres
+#########
+# docker run --rm \
+#      -e "KONG_DATABASE=postgres" \
+#      -e "KONG_PG_HOST=10.10.25.93" \
+#      -e "KONG_PG_USER=kong" \
+#      -e "KONG_PG_PASSWORD=kongpass" \
+#      kong/kong-gateway:3.2.2.1 kong migrations bootstrap
+
