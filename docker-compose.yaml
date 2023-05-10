@@ -30,6 +30,7 @@ services:
     profiles: ["kong"]
     environment:
       KONG_LICENSE_DATA: ''
+      # On real/production configuration screets should be stored here
       KONG_DATABASE: "postgres"
       KONG_PG_HOST: 190.190.10.11
       KONG_PG_USER: kong
