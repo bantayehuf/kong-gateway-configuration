@@ -68,6 +68,9 @@ services:
       - kong-data:/var/lib/postgresql/data
     restart: on-failure:5
 
+
+
+
 networks:
   kong-net:
     name: kong-net
