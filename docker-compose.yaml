@@ -29,7 +29,7 @@ services:
     container_name: kong-gateway
     profiles: ["kong"]
     environment:
-      KONG_LICENSE_DATA: ''
+      KONG_LICENSE_DATA: ""
       # On real/production configuration screets should be stored here
       KONG_DATABASE: "postgres"
       KONG_PG_HOST: 190.190.10.11
@@ -40,7 +40,7 @@ services:
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
     volumes:
-      - ./config/kong.conf:/etc/kong/kong.conf
+      - ./config/kong.conf:/etc/kong/kong.conf:ro
     ports:
       - 8000:8000 # proxy http
       - 8444:8444 # admin https/ssl
@@ -49,6 +49,7 @@ services:
         ipv4_address: 190.190.10.10
     depends_on:
       - db
+    restart: on-failure:5
 
   db:
     image: postgres:13
@@ -65,19 +66,7 @@ services:
         ipv4_address: 190.190.10.11
     volumes:
       - kong-data:/var/lib/postgresql/data
-
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: kong-prometheus
-    profiles: ["prm"]
-    ports: 
-        - 9090:9090
-    volumes:
-        - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    networks:
-        kong-net:
-          ipv4_address: 190.190.10.190
+    restart: on-failure:5
 
 networks:
   kong-net:
@@ -86,8 +75,11 @@ networks:
       driver: default
       config:
         - subnet: 190.190.10.0/24
+
 volumes:
-  kong-data: {}
+  kong-data:
+    name: "kong-gateway-postgres-data"
+    driver: local
 
 
 #########
