@@ -43,7 +43,8 @@ services:
       - ./config/kong.conf:/etc/kong/kong.conf:ro
     ports:
       - 8000:8000 # proxy http
-      - 8444:8444 # admin https/ssl
+      - 8001:8001 # admin http
+      # - 8444:8444 # admin https/ssl
     networks:
       kong-net:
         ipv4_address: 190.190.10.10
