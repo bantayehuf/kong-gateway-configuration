@@ -1,5 +1,11 @@
 version: "3.9"
 
+x-logging: &logging-conf
+  driver: json-file
+  options:
+    max-size: '10m'
+    max-file: '10'
+
 services:
   # kong:
   #   image: kong/kong-gateway:3.2.2.1
@@ -28,6 +34,7 @@ services:
     image: kong/kong-gateway:3.2.2.1
     container_name: kong-gateway
     profiles: ["kong"]
+    logging: *logging-conf
     environment:
       KONG_LICENSE_DATA: ""
       # On real/production configuration screets should be stored here
@@ -35,12 +42,13 @@ services:
       KONG_PG_HOST: 190.190.10.11
       KONG_PG_USER: kong
       KONG_PG_PASSWORD: kongpass
-      KONG_PROXY_ACCESS_LOG: /dev/stdout
-      KONG_ADMIN_ACCESS_LOG: /dev/stdout
-      KONG_PROXY_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      # KONG_PROXY_ACCESS_LOG: /usr/local/kong/logs/kong/proxy_access.log
+      # KONG_PROXY_ERROR_LOG: /usr/local/kong/logs/kong/proxy_error.log
+      # KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      # KONG_ADMIN_ERROR_LOG: /dev/stderr
     volumes:
       - ./config/kong.conf:/etc/kong/kong.conf:ro
+      - ./logs:/home/kong/logs
     ports:
       - 8000:8000 # proxy http
       - 8001:8001 # admin http
@@ -56,6 +64,7 @@ services:
     image: postgres:13
     container_name: postgres-13
     profiles: ['db']
+    logging: *logging-conf
     environment:
       POSTGRES_USER: kong
       POSTGRES_PASSWORD: kongpass
