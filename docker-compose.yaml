@@ -20,7 +20,7 @@ services:
   #     KONG_ADMIN_ACCESS_LOG: /dev/stdout
   #     KONG_ADMIN_ERROR_LOG: /dev/stderr
   #   volumes:
-  #     - ./declarative:/kong/declarative/
+  #     - ./kong.yaml:/kong/declarative/kong.yml
   #   ports:
   #     - 8000:8000
   #     - 8001:8001
@@ -53,6 +53,7 @@ services:
       - 8000:8000 # proxy http
       - 8001:8001 # admin http
       # - 8444:8444 # admin https/ssl
+      - 8002:8002 # admin UI
     networks:
       kong-net:
         ipv4_address: 190.190.10.10
