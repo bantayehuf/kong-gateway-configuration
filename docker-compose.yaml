@@ -8,7 +8,7 @@ x-logging: &logging-conf
 
 services:
   # kong:
-  #   image: kong/kong-gateway:3.2.2.1
+  #   image: kong/kong-gateway:3.2.2.3
   #   user: kong
   #   container_name: kong-gateway
   #   environment:
@@ -31,7 +31,7 @@ services:
 
 
   kong:
-    image: kong/kong-gateway:3.2.2.1
+    image: kong/kong-gateway:3.2.2.3
     container_name: kong-gateway
     profiles: ["kong"]
     logging: *logging-conf
@@ -60,6 +60,8 @@ services:
     depends_on:
       - db
     restart: on-failure:5
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   db:
     image: postgres:13
@@ -78,6 +80,8 @@ services:
     volumes:
       - kong-data:/var/lib/postgresql/data
     restart: on-failure:5
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 
 
@@ -104,5 +108,5 @@ volumes:
 #      -e "KONG_PG_HOST=10.10.25.93" \
 #      -e "KONG_PG_USER=kong" \
 #      -e "KONG_PG_PASSWORD=kongpass" \
-#      kong/kong-gateway:3.2.2.1 kong migrations bootstrap
+#      kong/kong-gateway:3.2.2.3 kong migrations bootstrap
 
