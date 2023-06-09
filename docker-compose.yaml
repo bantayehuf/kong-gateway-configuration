@@ -59,7 +59,7 @@ services:
         ipv4_address: 190.190.10.10
     depends_on:
       - db
-    restart: on-failure:5
+    # restart: on-failure:5
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -79,7 +79,7 @@ services:
         ipv4_address: 190.190.10.11
     volumes:
       - kong-data:/var/lib/postgresql/data
-    restart: on-failure:5
+    # restart: on-failure:5
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
